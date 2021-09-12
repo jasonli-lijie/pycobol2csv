@@ -1,0 +1,9 @@
+{
+    "csv_config": {
+        "description": "Sample configuration controlling how the CSV file is generated",
+        "delimiter": "|",
+        "quote_char": "\"",
+        "quoting_level": 2,
+        "quoting_level_note": "0: only quote those fields which contain special characters \n1: quote all fields \n2: quote all non-numeric fields\n3: never quote fields"
+    }
+}
