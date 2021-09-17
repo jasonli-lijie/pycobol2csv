@@ -12,14 +12,12 @@ import json
 
 class CobolPatterns:
     opt_pattern_format = "({})?"
-
     row_pattern_base = r"^(?P<level>\d{2})\s+(?P<name>\S+)"
     row_pattern_occurs = r"\s+OCCURS (?P<occurs>\d+) TIMES"
     row_pattern_indexed_by = r"\s+INDEXED BY\s(?P<indexed_by>\S+)"
     row_pattern_redefines = r"\s+REDEFINES\s(?P<redefines>\S+)"
     row_pattern_pic = r"\s+PIC\s+(?P<pic>\S+)"
     row_pattern_end = r"\.$"
-
     row_pattern = re.compile(
         row_pattern_base
         + opt_pattern_format.format(row_pattern_redefines)
@@ -28,7 +26,6 @@ class CobolPatterns:
         + opt_pattern_format.format(row_pattern_pic)
         + row_pattern_end
     )
-
     pic_pattern_repeats = re.compile(r"(.)\((\d+)\)")
     pic_pattern_float = re.compile(r"S?[9Z]*[.V][9Z]+")
     pic_pattern_integer = re.compile(r"S?[9Z]+")
@@ -39,14 +36,10 @@ def parse_pic_string(pic_str):
     # Expand repeating chars
     while True:
         match = CobolPatterns.pic_pattern_repeats.search(pic_str)
-
         if not match:
             break
-
         expanded_str = match.group(1) * int(match.group(2))
-
         pic_str = CobolPatterns.pic_pattern_repeats.sub(expanded_str, pic_str, 1)
-
     # Match to types
     if CobolPatterns.pic_pattern_float.match(pic_str):
         data_type = "Float"
@@ -73,7 +66,6 @@ def parse_pic_string(pic_str):
 # Cleans the COBOL by converting the cobol informaton to single lines
 def clean_cobol(lines):
     holder = []
-
     output = []
 
     for row in lines:
@@ -104,8 +96,6 @@ Parses the COBOL
  - parses the pic information into type, length, precision 
  - handles redefines
 """
-
-
 def parse_cobol(lines):
     output = []
 
@@ -478,39 +468,16 @@ def unpack_number(p):
 
 def custom_encoder(my_string):
     return "".join([i if ord(i) < 128 else " " for i in my_string])
-    # for i in my_string:
-    #     try:
-    #         yield str(i, "utf-8")
-    #     except UnicodeDecodeError:
-    #         yield "\t"  # or another whietespaces
 
-
-def sanitize_col_name_for_snowflake(name):
+def sanitize_col_name_for_database(name):
     """
-        source: https://www.stitchdata.com/docs/destinations/snowflake/reference
-    Column names in Snowflake:
+    Column names in database:
     Must contain only letters (a-z, A-Z), numbers (0-9), or underscores (_)
     Must begin with a letter or underscore
-    Must be less than the maximum length of 251 characters. Columns that exceed this limit will be rejected by Snowflake.
-    Must not be prefixed or suffixed with any of Snowflake’s or Stitch’s reserved keyword prefixes or suffixes
+    Must be less than the maximum length of 251 characters. 
 
     """
     new_name = name.replace("-", "_")[:251]
-    snowflake_reserved_keywords = [
-        "__BO",
-        "__DE",
-        "__FL",
-        "__IT",
-        "__ST",
-        "__TI",
-        "__VA",
-        "_SDC",
-        "_RJM",
-    ]
-    for key_word in snowflake_reserved_keywords:
-        if new_name.endswith(key_word):
-            new_name.replace(key_word, "")
-
     return new_name
 
 
@@ -519,20 +486,14 @@ def convert_cobol_file(
 ):
     # decode_ebcdic_file(datafile, processed_data_file)
     (row_length, cobol_struc) = decode_copybook_file(copybook_filename)
-    headers = [sanitize_col_name_for_snowflake(item["name"]) for item in cobol_struc]
+    headers = [sanitize_col_name_for_database(item["name"]) for item in cobol_struc]
     print("total length per row is ")
     print(row_length)
     print("Cobol strucuture to consume is ")
     print(cobol_struc)
-    # print('\n\n\n')
-
-    # csv_filename = "result.csv"
-    # with open(csv_filename, "w", newline="") as csvfile, open(
     with open(output_filename, "w", newline="") as csvfile, open(
         config_filename
     ) as json_file, open(data_filename, "rb") as data_file:
-        # csvwriter = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)
-        # get delimited file config from config file
         config = json.load(json_file)
 
         print(config)
@@ -546,25 +507,15 @@ def convert_cobol_file(
         csvwriter.writerow(headers)
 
         current_pos = 0
-        # f = open(data_file, "rb")
         eof = False
         while not eof:
             data_row = []
             for item in cobol_struc:
-                # f.seek(current_pos, 0) ##relative position
                 data_read = data_file.read(item["length"])
                 if not data_read:
                     eof = True
                     break
-                # print('Type is ', item['type'])
-                # if('Integer' in item['type']):
-                #     print(int.from_bytes(data_read,'little'))
-                # else:
-                #     print(data_read.decode())
                 if "Signed Integer" in item["type"]:
-                    # integer_array = [str(data_read[i]) for i in range(item['length'])]
-                    # print(item['type'], item['name'], integer_array)
-                    # data_row.append('/'.join(integer_array))
                     data_row.append(unpack_number(data_read))
                 elif "Signed Float" in item["type"]:
                     print("Processing float ", item)
@@ -574,7 +525,6 @@ def convert_cobol_file(
                     float_val = float(int_val) / pow(10, item["precision"])
                     data_row.append(float_val)
                     print(int_val, float_val)
-                    # data_row.append('/'.join(integer_array))
                 else:
                     original_str = codecs.decode(data_read, codepage).strip()
                     new_str = "".join(custom_encoder(original_str))
@@ -583,4 +533,3 @@ def convert_cobol_file(
             print(data_row)
             if len(data_row) > 2:
                 csvwriter.writerow(data_row)
-            # print('Current position is ', current_pos)
