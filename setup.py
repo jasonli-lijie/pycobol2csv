@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setuptools.setup(
     name="pycobol2csv",
     packages=["pycobol2csv"],
-    version="0.1",
+    version="0.1.2",
     license="MIT",
     description="A Python library to convert COBOL ebcdic file to CSV format",
     author="Jason Li",
