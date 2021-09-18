@@ -6,7 +6,7 @@ CSV conversion is controlled by config file in *csv_config.json*
 
 Install the python module:
 
-`pip install `
+`pip install pycobol2csv`
 
 To use the module:
 
