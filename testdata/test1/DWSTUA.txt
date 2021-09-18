@@ -1,10 +1,10 @@
-       01   U-POC-MOCK-OUTCOME-STATUS.                                  DWUPOC
-         03 U-POC-RECORD-HEADER-GP.                                     DWUPOC
-            05 DT-FROM                       PIC 9(8).                  DWUPOC
-            05 RECORD-TYPE                   PIC X(1).                  DWUPOC
-         03 U-POC-DATA-GP.                                              DWUPOC
-            05 STATUS-CODE                   PIC S9(2)                  DWUPOC
-                                                 USAGE COMP-3.          DWUPOC
-            05 STATUS-DESC                   PIC X(50).                 DWUPOC
-            05 STATUS-TYPE                                              DWUPOC
-                                             PIC X(20).                 DWUPOC
+       01   U-POC-MOCK-OUTCOME-STATUS.                                  DWSTUA
+         03 U-POC-RECORD-HEADER-GP.                                     DWSTUA
+            05 DT-FROM                       PIC 9(8).                  DWSTUA
+            05 RECORD-TYPE                   PIC X(1).                  DWSTUA
+         03 U-POC-DATA-GP.                                              DWSTUA
+            05 STATUS-CODE                   PIC S9(2)                  DWSTUA
+                                                 USAGE COMP-3.          DWSTUA
+            05 STATUS-DESC                   PIC X(50).                 DWSTUA
+            05 STATUS-TYPE                                              DWSTUA
+                                             PIC X(20).                 DWSTUA
