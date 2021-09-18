@@ -23,4 +23,8 @@ convert_cobol_file(copybook_file, data_file, output_file, config_file, codepage)
 - config_file: csv configuration filename, refer to csv_config.json
 - codepage: codepage for edibic, refer to https://docs.python.org/3.7/library/codecs.html#standard-encodings for details
 
+# test data
+
+2 sets of test data have been created from scratch. Each set includes a copybook and an EBCDIC data file.
+
 Repo: https://github.com/jasonli-lijie/pycobol2csv
